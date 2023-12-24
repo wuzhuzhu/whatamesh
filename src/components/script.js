@@ -650,6 +650,25 @@ class Gradient {
       this.scrollObserver.disconnect()),
       window.removeEventListener("resize", this.resize);
   }
+  setCanvasSize(width, height, initial = true) {
+    (this.width = width),
+      (this.height = height),
+      this.minigl.setSize(
+        Math.min(1024, this.width),
+        Math.min(this.height, 600),
+        this.width,
+        this.height
+      ),
+      this.minigl.setOrthographicCamera(),
+      initial &&
+        (this.xSegCount = Math.ceil(this.width * this.conf.density[0])),
+      initial &&
+        (this.ySegCount = Math.ceil(this.height * this.conf.density[1])),
+      initial && this.mesh.geometry.setTopology(this.xSegCount, this.ySegCount),
+      this.mesh.geometry.setSize(this.width, this.height),
+      (this.mesh.material.uniforms.u_shadow_power.value =
+        this.width < 600 ? 5 : 6);
+  }
   initMaterial() {
     this.uniforms = {
       u_time: new this.minigl.Uniform({
@@ -853,6 +872,20 @@ class Gradient {
       })
       .filter(Boolean)
       .map(normalizeColor);
+  }
+  changeGradientColors(colors) {
+    if (colors) {
+      this.inputColors = colors;
+      this.init();
+    }
+  }
+
+  reGenerateCanvas() {
+    this.minigl.render();
+  }
+
+  getGradientColors() {
+    return this.inputColors;
   }
 }
 
